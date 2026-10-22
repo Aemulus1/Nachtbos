@@ -1,6 +1,6 @@
-<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nachtbos — Laag 5: dieren en natuurgetrouwere vleermuizen</title><style>body{margin:0;background:#101725;color:#e7eaf4;font:15px system-ui}main{max-width:1130px;margin:auto;padding:20px}h1{font-size:23px;font-weight:550}section{display:flex;gap:20px;flex-wrap:wrap}aside{background:#1a2739;border:1px solid #43546b;border-radius:12px;padding:16px;width:250px}canvas{width:100%;height:auto;display:block}#painting{position:relative;width:min(100%,750px);border:1px solid #52637b}#shade{position:absolute;inset:0;pointer-events:none}button{border:1px solid #6f8cad;background:#345071;color:white;padding:11px 14px;border-radius:8px;cursor:pointer;margin:4px 2px}label{display:block;margin-top:17px}input[type=range]{width:100%}p,small{color:#bccbdc}#scene{flex:1;min-width:280px}</style></head><body><main><h1>🌙 Nachtbos — Laag 1 t/m 5: bos en dieren</h1><section><aside><button id="toggle">▶ Start</button><button id="again">↻ Nieuw beeld</button><button id="save">↓ PNG</button><label>Stappen per seconde: <span id="speedVal">20000</span><input id="speed" type="range" min="3000" max="50000" step="1000" value="20000"></label><label>Helderheid bos: <span id="lightVal">0</span><input id="forestLight" type="range" min="-70" max="55" step="5" value="0"></label><label><input type="checkbox" id="show" checked> Toon vier CMYK-mieren</label><p id="progress">Druk op Start om te schilderen.</p><small>Lagen 1–3 blijven ongewijzigd. Maximaal drie dieren op de grond en twee vleermuizen; gegarandeerd zichtbare treurwilg en den vooraan.</small></aside><div id="scene"><div id="painting"><canvas id="c" width="1000" height="1000"></canvas><canvas id="shade" width="1000" height="1000"></canvas></div><p>by Luna Derison</p></div></section></main><script>
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nachtbos — Laag 5: dieren en natuurgetrouwere vleermuizen</title><style>body{margin:0;background:#101725;color:#e7eaf4;font:15px system-ui}main{max-width:1130px;margin:auto;padding:20px}h1{font-size:23px;font-weight:550}section{display:flex;gap:20px;flex-wrap:wrap}aside{background:#1a2739;border:1px solid #43546b;border-radius:12px;padding:16px;width:250px}canvas{width:100%;height:auto;display:block}#painting{position:relative;width:min(100%,750px);border:1px solid #52637b}#shade{position:absolute;inset:0;pointer-events:none}button{border:1px solid #6f8cad;background:#345071;color:white;padding:11px 14px;border-radius:8px;cursor:pointer;margin:4px 2px}label{display:block;margin-top:17px}input[type=range]{width:100%}p,small{color:#bccbdc}#scene{flex:1;min-width:280px}</style></head><body><main><h1>🌙 Nachtbos — Laag 1 t/m 5: bos en dieren</h1><section><aside><button id="toggle">▶ Start</button><button id="again">↻ Nieuw beeld</button><button id="save">↓ PNG</button><label>Stappen per seconde: <span id="speedVal">20000</span><input id="speed" type="range" min="3000" max="50000" step="1000" value="20000"></label><label>Helderheid bos: <span id="lightVal">0</span><input id="forestLight" type="range" min="-70" max="55" step="5" value="0"></label><label><input type="checkbox" id="show" checked> Toon vier CMYK-mieren</label><p id="progress">Druk op Start om te schilderen.</p><small>Lagen 1–3 blijven ongewijzigd. Maximaal drie dieren op de grond en twee vleermuizen; gegarandeerd zichtbare treurwilg en den vooraan.</small></aside><div id="scene"><div id="painting"><canvas id="c" width="1000" height="1000"></canvas><canvas id="shade" width="1000" height="1000"></canvas></div></div></section></main><script>
 const c=document.getElementById('c'),g=c.getContext('2d'),off=document.createElement('canvas');off.width=off.height=1000;const o=off.getContext('2d',{willReadFrequently:true});const W=1000,N=1000000;let data,done,ants,painted=0,running=false,scene=0,completed=false,phase=1,mountainData,mountainCanvas,mountainPixels=0,treeCanvas,treeData,treePixels=0,forestCanvas,forestData,forestPixels=0,animalCanvas,animalData,animalPixels=0;const R=(a,b)=>a+Math.random()*(b-a);
-function newSky(){phase=1;scene++;running=false;completed=false;painted=0;done=new Uint8Array(N);g.fillStyle='#0b1120';g.fillRect(0,0,W,W);let hue=R(212,260),horizon=R(550,790),moonX=R(120,880),moonY=R(105,355),moonR=R(31,62);
+function newSky(){signaturePoints=[];signatureIndex=0;phase=1;scene++;running=false;completed=false;painted=0;done=new Uint8Array(N);g.fillStyle='#0b1120';g.fillRect(0,0,W,W);let hue=R(212,260),horizon=R(550,790),moonX=R(120,880),moonY=R(105,355),moonR=R(31,62);
 let gr=o.createLinearGradient(0,0,0,W);gr.addColorStop(0,`hsl(${hue},${R(36,52)}%,${R(7,12)}%)`);gr.addColorStop(.5,`hsl(${hue-8},45%,${R(19,27)}%)`);gr.addColorStop(1,`hsl(${hue-24},${R(32,53)}%,${R(29,41)}%)`);o.fillStyle=gr;o.fillRect(0,0,W,W);
 let glow=o.createRadialGradient(moonX,moonY,moonR*.3,moonX,moonY,moonR*5.3);glow.addColorStop(0,'rgba(245,244,207,.42)');glow.addColorStop(.32,'rgba(211,222,229,.17)');glow.addColorStop(1,'rgba(211,222,229,0)');o.fillStyle=glow;o.fillRect(0,0,W,W);
 for(let i=0;i<430;i++){let x=R(0,W),y=R(0,760),r=R(.4,2);o.fillStyle=`rgba(234,242,255,${R(.35,.97)})`;o.beginPath();o.arc(x,y,r,0,7);o.fill()}
@@ -472,6 +472,11 @@ function createAnimals(){
  // Plaats maximaal drie gronddieren op de zichtbare voorgrond, niet
  // boven de grondlijn. Zoek tussen de boomstammen naar de vrijste plek.
  let landTypes=['hert','vos','konijn','egel'];
+ // Schud de soorten voor elk nieuw schilderij: maximaal drie verschillende dieren.
+ for(let j=landTypes.length-1;j>0;j--){
+  const k=Math.floor(Math.random()*(j+1));
+  [landTypes[j],landTypes[k]]=[landTypes[k],landTypes[j]];
+ }
  const placed=[];
  function treeOverlap(x,foot,scale,type){
   if(!forestData)return 0;
@@ -509,11 +514,40 @@ function beginAnimals(){
  running=true;
  document.getElementById('progress').textContent='Laag 5 · landdieren en vliegende vogels · 0%';
 }
-function step(){if(running&&!completed){let n=Math.floor(+document.getElementById('speed').value/60),src=phase===1?data:phase===2?mountainData:phase===3?treeData:phase===4?forestData:animalData;
+// Laat de vier mieren de handtekening als laatste schilderfase aanbrengen.
+let signaturePoints=[],signatureIndex=0;
+function beginSignature(){
+ phase=6;painted=0;signatureIndex=0;signaturePoints=[];
+ const layer=document.createElement('canvas');layer.width=layer.height=W;
+ const t=layer.getContext('2d');
+ t.font='italic 42px Georgia, serif';t.textBaseline='alphabetic';
+ t.fillStyle='#d0d5bd';t.fillText('by Luna Derison',38,963);
+ const pixels=t.getImageData(0,0,W,W).data;
+ for(let y=908;y<976;y++)for(let x=30;x<450;x++){
+  const k=(y*W+x)*4;
+  if(pixels[k+3]>110)signaturePoints.push([x,y,pixels[k],pixels[k+1],pixels[k+2],pixels[k+3]]);
+ }
+ // Willekeurige volgorde: de letters verschijnen als vele kleine mierenstreken.
+ for(let i=signaturePoints.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[signaturePoints[i],signaturePoints[j]]=[signaturePoints[j],signaturePoints[i]];}
+ running=true;
+ document.getElementById('progress').textContent='Laag 6 · mieren schrijven by Luna Derison · 0%';
+}
+function paintSignature(){
+ const n=Math.max(30,Math.floor(+document.getElementById('speed').value/75));
+ for(let i=0;i<n&&signatureIndex<signaturePoints.length;i++){
+  const [x,y,r,gr,b,alpha]=signaturePoints[signatureIndex++];
+  g.fillStyle=`rgba(${r},${gr},${b},${alpha/255})`;g.fillRect(x,y,1,1);
+  const ant=ants[i%4];ant.x=x;ant.y=y;
+ }
+ const pct=signaturePoints.length?Math.floor(signatureIndex/signaturePoints.length*100):100;
+ document.getElementById('progress').textContent=`Laag 6 · handtekening door vier mieren · ${pct}%`;
+ if(signatureIndex>=signaturePoints.length){running=false;completed=true;document.getElementById('toggle').textContent='✓ Voltooid';}
+}
+function step(){if(running&&phase===6){paintSignature();requestAnimationFrame(step);return;}if(running&&!completed){let n=Math.floor(+document.getElementById('speed').value/60),src=phase===1?data:phase===2?mountainData:phase===3?treeData:phase===4?forestData:animalData;
  for(let i=0;i<n;i++){let a=ants[i%4];a.a+=R(-1.1,1.1);a.x=(a.x+Math.cos(a.a)*R(4,18)+W)%W;a.y=(a.y+Math.sin(a.a)*R(4,18)+W)%W;let x=a.x|0,y=a.y|0,r=R(6,14)|0;
  for(let dy=-r;dy<=r;dy+=2)for(let dx=-r;dx<=r;dx+=2){if(dx*dx+dy*dy>r*r)continue;let xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=W||yy>=W)continue;let ix=yy*W+xx,p=ix*4;if(phase!==1&&src[p+3]===0)continue;if(!done[ix]){done[ix]=1;painted++}g.fillStyle=phase===1?`rgb(${src[p]},${src[p+1]},${src[p+2]})`:`rgba(${src[p]},${src[p+1]},${src[p+2]},${src[p+3]/255})`;g.fillRect(xx,yy,3,3)}}
  let total=phase===1?N:phase===2?mountainPixels:phase===3?treePixels:phase===4?forestPixels:animalPixels;
- if(painted>total*.78){if(phase===1){g.drawImage(off,0,0);beginMountain()}else if(phase===2){g.drawImage(mountainCanvas,0,0);beginTrees()}else if(phase===3){g.drawImage(treeCanvas,0,0);beginForest()}else if(phase===4){g.drawImage(forestCanvas,0,0);beginAnimals()}else{g.drawImage(animalCanvas,0,0);running=false;completed=true;painted=total}}
+ if(painted>total*.78){if(phase===1){g.drawImage(off,0,0);beginMountain()}else if(phase===2){g.drawImage(mountainCanvas,0,0);beginTrees()}else if(phase===3){g.drawImage(treeCanvas,0,0);beginForest()}else if(phase===4){g.drawImage(forestCanvas,0,0);beginAnimals()}else{g.drawImage(animalCanvas,0,0);beginSignature()}}
  document.getElementById('progress').textContent=`Laag ${phase} · ${phase===1?'maan en lucht':phase===2?'berg en kasteel':phase===3?'achterste bomenrij':phase===4?'twee gevarieerde bomenrijen':'dieren op grond en in lucht'} · ${Math.min(100,Math.floor(painted/total*100))}%`;
  document.getElementById('toggle').textContent=running?'Ⅱ Pauze':completed?'✓ Voltooid':'▶ Verder'}requestAnimationFrame(step)}
 // Visuele helderheid uitsluitend op de boszone, met zachte overgang.
