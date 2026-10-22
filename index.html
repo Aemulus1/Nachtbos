@@ -126,27 +126,53 @@ function createMountain(){
   m.lineWidth=R(.5,1.7);m.beginPath();m.moveTo(gx,gy);
   m.lineTo(gx+R(-5,5),gy-hh);m.stroke();
  }
- // Op de berg verschijnen drie kleine bomen, met wisselende soorten,
- // hoogtes en plaatsen, ruim buiten het kasteel.
+ // Drie kleine bergbomen: grillige takken en losse naald-/bladpluimen,
+ // nooit een geometrische driehoek of ronde schijf.
  for(const side of [-1,1]){
   const count=side===-1?1:2;
   for(let k=0;k<count;k++){
    const tx=cx+side*R(215+k*60,270+k*80);
    const near=ridge.reduce((best,pt)=>Math.abs(pt[0]-tx)<Math.abs(best[0]-tx)?pt:best,ridge[0]);
    const base=Math.max(summit+70,Math.min(near[1]+R(9,28),grassStart-75));
-   const th=R(33,72),tw=R(11,24),conifer=Math.random()<.7;
-   m.strokeStyle='#24362f';m.lineWidth=R(2,4);m.beginPath();
-   m.moveTo(tx,base);m.lineTo(tx+R(-4,4),base-th*.86);m.stroke();
+   const th=R(38,76),tw=R(13,25),conifer=Math.random()<.72;
+   const lean=R(-5,5),top=base-th;
+   m.save();m.lineCap='round';
+   m.strokeStyle='#1c302a';m.lineWidth=R(1.5,2.7);
+   m.beginPath();m.moveTo(tx,base);m.quadraticCurveTo(tx+lean*.3,base-th*.52,tx+lean,top);m.stroke();
    if(conifer){
-    for(let z=0;z<4;z++){
-     const yy=base-th+z*th*.20,ww=tw*(.42+z*.22);
-     m.fillStyle=['#1b382d','#244637','#294c3b'][z%3];
-     m.beginPath();m.moveTo(tx,yy-th*.15);m.lineTo(tx-ww,yy+th*.27);
-     m.lineTo(tx+ww,yy+th*.27);m.closePath();m.fill();
+    // Fijne, onregelmatige zijtakken met korte naaldstreken.
+    for(let j=0;j<11;j++){
+     const frac=.16+j*.068,yy=top+th*frac;
+     const reach=tw*(.30+.78*frac)*R(.75,1.15);
+     for(const sign of [-1,1]){
+      const bx=tx+lean*(1-frac),ex=bx+sign*reach;
+      const ey=yy+R(2,8);
+      m.strokeStyle=j%3===0?'#254438':'#1c392f';m.lineWidth=R(.8,1.8);
+      m.beginPath();m.moveTo(bx,yy);m.quadraticCurveTo((bx+ex)/2,yy+R(1,4),ex,ey);m.stroke();
+      for(let q=0;q<6;q++){
+       const t=(q+.35)/6,nx=bx+(ex-bx)*t,ny=yy+(ey-yy)*t;
+       m.strokeStyle=q%2?'#2c4b3a':'#213d32';m.lineWidth=R(.65,1.15);
+       m.beginPath();m.moveTo(nx,ny);m.lineTo(nx+sign*R(1,4),ny-R(2,6));m.stroke();
+      }
+     }
     }
    }else{
-    m.fillStyle='#294b38';m.beginPath();m.ellipse(tx,base-th*.72,tw*1.2,th*.32,0,0,Math.PI*2);m.fill();
+    // Kleine loofboom: takvorken en tientallen aparte, donkere bladtoetsen.
+    for(let j=0;j<13;j++){
+     const frac=R(.26,.77),yy=base-th*frac,sign=j%2?-1:1;
+     const bx=tx+lean*(frac),ex=bx+sign*tw*R(.45,1.15),ey=yy-th*R(.07,.21);
+     m.strokeStyle='#26372e';m.lineWidth=R(.8,1.6);
+     m.beginPath();m.moveTo(bx,yy);m.quadraticCurveTo((bx+ex)/2,yy-th*.08,ex,ey);m.stroke();
+    }
+    for(let j=0;j<115;j++){
+     const ang=R(0,Math.PI*2),rad=Math.sqrt(Math.random());
+     const xx=tx+lean*.8+Math.cos(ang)*tw*rad*1.12;
+     const yy=base-th*.73+Math.sin(ang)*th*.28*rad;
+     m.fillStyle=['#203b30','#294838','#1d352b','#35513d'][j%4];
+     m.beginPath();m.ellipse(xx,yy,R(1.1,3.2),R(1.1,3.5),R(-.5,.5),0,Math.PI*2);m.fill();
+    }
    }
+   m.restore();
   }
  }
  mountainData=m.getImageData(0,0,1000,1000).data;mountainPixels=0;for(let i=3;i<mountainData.length;i+=4)if(mountainData[i])mountainPixels++;
