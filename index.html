@@ -112,6 +112,43 @@ function createMountain(){
      m.beginPath();m.moveTo(x-w*.55,y+3);m.lineTo(x-w*.55,y+h);m.stroke();
    }
  });
+ // Nachtelijke grasbodem op de voorgrond: geen doorlopende rotsvloer.
+ // Zachte onregelmatige overgang, zodat het landschap natuurlijk blijft.
+ const grassStart=R(755,825);
+ const grass=m.createLinearGradient(0,grassStart-35,0,1000);
+ grass.addColorStop(0,'rgba(18,39,31,0)');
+ grass.addColorStop(.24,'rgba(20,45,33,.86)');
+ grass.addColorStop(1,'#132d23');
+ m.fillStyle=grass;m.fillRect(0,grassStart-35,1000,1035-grassStart);
+ for(let j=0;j<2800;j++){
+  const gx=R(0,1000),gy=R(grassStart+25,1000),hh=R(2,13);
+  m.strokeStyle=j%4===0?'rgba(77,105,68,.30)':j%3===0?'rgba(38,79,51,.42)':'rgba(12,32,24,.35)';
+  m.lineWidth=R(.5,1.7);m.beginPath();m.moveTo(gx,gy);
+  m.lineTo(gx+R(-5,5),gy-hh);m.stroke();
+ }
+ // Op de berg verschijnen drie kleine bomen, met wisselende soorten,
+ // hoogtes en plaatsen, ruim buiten het kasteel.
+ for(const side of [-1,1]){
+  const count=side===-1?1:2;
+  for(let k=0;k<count;k++){
+   const tx=cx+side*R(215+k*60,270+k*80);
+   const near=ridge.reduce((best,pt)=>Math.abs(pt[0]-tx)<Math.abs(best[0]-tx)?pt:best,ridge[0]);
+   const base=Math.max(summit+70,Math.min(near[1]+R(9,28),grassStart-75));
+   const th=R(33,72),tw=R(11,24),conifer=Math.random()<.7;
+   m.strokeStyle='#24362f';m.lineWidth=R(2,4);m.beginPath();
+   m.moveTo(tx,base);m.lineTo(tx+R(-4,4),base-th*.86);m.stroke();
+   if(conifer){
+    for(let z=0;z<4;z++){
+     const yy=base-th+z*th*.20,ww=tw*(.42+z*.22);
+     m.fillStyle=['#1b382d','#244637','#294c3b'][z%3];
+     m.beginPath();m.moveTo(tx,yy-th*.15);m.lineTo(tx-ww,yy+th*.27);
+     m.lineTo(tx+ww,yy+th*.27);m.closePath();m.fill();
+    }
+   }else{
+    m.fillStyle='#294b38';m.beginPath();m.ellipse(tx,base-th*.72,tw*1.2,th*.32,0,0,Math.PI*2);m.fill();
+   }
+  }
+ }
  mountainData=m.getImageData(0,0,1000,1000).data;mountainPixels=0;for(let i=3;i<mountainData.length;i+=4)if(mountainData[i])mountainPixels++;
 }
 function beginMountain(){phase=2;painted=0;done=new Uint8Array(N);createMountain();ants.forEach(a=>{a.x=R(0,W);a.y=R(0,W)});running=true;document.getElementById('progress').textContent='Laag 2 · berg en kasteel · 0%'}
