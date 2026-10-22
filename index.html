@@ -385,7 +385,7 @@ function createAnimals(){
  const placed=[];
  // Breedte in canvaspixels: hert > vos > konijn > egel.
  // De afbeelding behoudt altijd haar oorspronkelijke verhouding.
- const widths={hert:[150,193],vos:[92,123],konijn:[46,64],egel:[37,53],
+ const widths={hert:[150,193],vos:[92,123],konijn:[34,45],egel:[37,53],
                vleermuis:[49,75],uil:[35,51]};
  function bounds(img,width){
   return {w:width,h:width*img.naturalHeight/img.naturalWidth};
@@ -405,7 +405,7 @@ function createAnimals(){
    a.fillStyle='rgba(3,12,11,.36)';a.beginPath();
    a.ellipse(0,1,w*.37,2.8,0,0,Math.PI*2);a.fill();
   }
-  a.filter='brightness(0.67) saturate(0.76)';
+  a.filter='brightness(0.56) saturate(0.70)';
   a.drawImage(img,-w/2,-h,w,h);
   a.restore();
  }
@@ -414,7 +414,9 @@ function createAnimals(){
   const img=pickPhoto(kind);if(!img)continue;
   let best=null;
   for(let tries=0;tries<190;tries++){
-   const w=R(...widths[kind]),h=bounds(img,w).h;
+   let w=R(...widths[kind]);
+   if(kind==='konijn')w=Math.min(w,66*img.naturalWidth/img.naturalHeight);
+   const h=bounds(img,w).h;
    const x=R(w/2+20,W-w/2-20),foot=R(965,993);
    if(placed.some(p=>Math.abs(p.x-x)<(p.w+w)/2+22))continue;
    const score=overlap(x,foot,w,h)+Math.abs(foot-986)*.025;
@@ -433,10 +435,22 @@ function createAnimals(){
   const w=R(...widths.vleermuis),x=R(140,860),y=R(155,375);
   drawPhoto(img,x,y,w,Math.random()<.5?-1:1,'vleermuis');
  }
- // Soms een echte uil hoog boven het bos, met beperkte grootte.
+ // De uil zit IN een boomkruin, nooit meer op de berg of bij het kasteel.
  if(Math.random()<.65){
   const img=pickPhoto('uil');
-  if(img)drawPhoto(img,R(140,860),R(250,480),R(...widths.uil),Math.random()<.5?-1:1,'uil');
+  if(img){
+   const perchY=R(745,830);
+   let x=R(140,860),best=-1;
+   // Zoek een dichtbegroeide plek in de voorste boslaag.
+   for(let i=0;i<85;i++){
+    const candidate=R(100,900);let cover=0;
+    for(let yy=Math.floor(perchY)-30;yy<perchY+18;yy+=8)
+     for(let xx=Math.floor(candidate)-25;xx<candidate+25;xx+=8)
+      if(forestData && forestData[(yy*W+xx)*4+3]>80)cover++;
+    if(cover>best){best=cover;x=candidate;}
+   }
+   drawPhoto(img,x,perchY,R(...widths.uil),Math.random()<.5?-1:1,'uil');
+  }
  }
  animalData=a.getImageData(0,0,W,W).data;
  animalPixels=0;
