@@ -173,18 +173,34 @@ function createForest(){
  const species=[['grove den',16],['spar',16],['eik',18],['berk',18],['treurwilg',16],['beuk',16]];
  function randomSpecies(){let n=Math.random()*100;for(const [name,chance] of species){n-=chance;if(n<0)return name}return 'beuk'}
  const items=[];
+ // Een nieuw beeld krijgt een eigen bosritme: open stroken en boomgroepen.
+ // Geen vast raster of vaste aantallen meer.
+ const gaps=Array.from({length:I(1,4)},()=>({x:R(100,900),width:R(105,230)}));
+ const groups=Array.from({length:I(2,5)},()=>({x:R(70,930),spread:R(55,170)}));
  for(let row=0;row<2;row++){
-  const amount=row===0?22:16;
+  const amount=row===0?I(13,29):I(9,22);
   for(let i=0;i<amount;i++){
-   // Voorste rij: minstens één herkenbare grove den en treurwilg.
-   // Overige bomen behouden hun willekeurige kansverdeling.
-   let type=row===1&&i===4?'grove den':row===1&&i===11?'treurwilg':randomSpecies();
-   let x=(i+.5)*W/amount+R(-22,22),foot=row===0?R(832,883):R(942,1008);
-   let h=(row===0?R(130,225):R(205,355))*R(.85,1.14);
-   if(row===1&&(i===4||i===11)){x=(i===4?270:760)+R(-8,8);foot=R(972,990);h=i===11?R(365,410):R(285,335)}
-   items.push({x,foot,h,type,row,lean:R(-.12,.12),age:R(.7,1.25),guaranteed:row===1&&i===11});
+   let x;
+   if(Math.random()<.62){
+    const g=groups[I(0,groups.length)];
+    x=g.x+R(-g.spread,g.spread);
+   }else x=R(20,980);
+   // In een open strook blijven minder bomen staan.
+   if(gaps.some(g=>Math.abs(x-g.x)<g.width*.5) && Math.random()<.84)continue;
+   x=Math.max(18,Math.min(982,x));
+   let type=randomSpecies();
+   let foot=row===0?R(825,895):R(940,1005);
+   let h=(row===0?R(115,255):R(175,395))*R(.83,1.18);
+   items.push({x,foot,h,type,row,lean:R(-.12,.12),age:R(.7,1.25),guaranteed:false});
   }
  }
+ // De twee herkenbare voorgrondsoorten blijven gegarandeerd, maar
+ // krijgen iedere keer een nieuwe positie en hoogte.
+ const pineX=R(100,430),willowX=R(580,900);
+ items.push({x:pineX,foot:R(970,995),h:R(270,360),type:'grove den',row:1,
+             lean:R(-.09,.09),age:R(.8,1.2),guaranteed:false});
+ items.push({x:willowX,foot:R(972,995),h:R(345,415),type:'treurwilg',row:1,
+             lean:R(-.07,.07),age:R(.85,1.15),guaranteed:true});
  items.sort((a,b)=>a.foot-b.foot);
  // De vaste voorgrondwilg wordt ALS LAATSTE getekend, zodat andere kruinen hem niet bedekken.
  const guaranteedWillow=items.find(q=>q.row===1&&q.type==='treurwilg'&&q.guaranteed);
