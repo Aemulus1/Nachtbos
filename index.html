@@ -1,4 +1,4 @@
-<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nachtbos — Laag 5: dieren en natuurgetrouwere vleermuizen</title><style>body{margin:0;background:#101725;color:#e7eaf4;font:15px system-ui}main{max-width:1130px;margin:auto;padding:20px}h1{font-size:23px;font-weight:550}section{display:flex;gap:20px;flex-wrap:wrap}aside{background:#1a2739;border:1px solid #43546b;border-radius:12px;padding:16px;width:250px}canvas{width:100%;height:auto;display:block}#painting{position:relative;width:min(100%,750px);border:1px solid #52637b}#shade{position:absolute;inset:0;pointer-events:none}button{border:1px solid #6f8cad;background:#345071;color:white;padding:11px 14px;border-radius:8px;cursor:pointer;margin:4px 2px}label{display:block;margin-top:17px}input[type=range]{width:100%}p,small{color:#bccbdc}#scene{flex:1;min-width:280px}</style></head><body><main><h1>🌙 Nachtbos — By Luna Derison</h1><section><aside><button id="toggle">▶ Start</button><button id="again">↻ Nieuw beeld</button><button id="save">↓ PNG</button><label>Stappen per seconde: <span id="speedVal">20000</span><input id="speed" type="range" min="3000" max="50000" step="1000" value="20000"></label><label>Helderheid bos: <span id="lightVal">0</span><input id="forestLight" type="range" min="-70" max="55" step="5" value="0"></label><label><input type="checkbox" id="show" checked> Toon vier CMYK-mieren</label><p id="progress">Druk op Start om te schilderen.</p><small>Lagen 1–3 blijven ongewijzigd. Maximaal drie dieren op de grond en twee vleermuizen; gegarandeerd zichtbare treurwilg en den vooraan.</small></aside><div id="scene"><div id="painting"><canvas id="c" width="1000" height="1000"></canvas><canvas id="shade" width="1000" height="1000"></canvas></div></div></section></main><script>
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nachtbos — Laag 5: dieren en natuurgetrouwere vleermuizen</title><style>body{margin:0;background:#101725;color:#e7eaf4;font:15px system-ui}main{max-width:1130px;margin:auto;padding:20px}h1{font-size:23px;font-weight:550}section{display:flex;gap:20px;flex-wrap:wrap}aside{background:#1a2739;border:1px solid #43546b;border-radius:12px;padding:16px;width:250px}canvas{width:100%;height:auto;display:block}#painting{position:relative;width:min(100%,750px);border:1px solid #52637b}#shade{position:absolute;inset:0;pointer-events:none}button{border:1px solid #6f8cad;background:#345071;color:white;padding:11px 14px;border-radius:8px;cursor:pointer;margin:4px 2px}label{display:block;margin-top:17px}input[type=range]{width:100%}p,small{color:#bccbdc}#scene{flex:1;min-width:280px}</style></head><body><main><h1>🌙 Nachtbos — Laag 1 t/m 5: bos en dieren</h1><section><aside><button id="toggle">▶ Start</button><button id="again">↻ Nieuw beeld</button><button id="save">↓ PNG</button><label>Stappen per seconde: <span id="speedVal">20000</span><input id="speed" type="range" min="3000" max="50000" step="1000" value="20000"></label><label>Helderheid bos: <span id="lightVal">0</span><input id="forestLight" type="range" min="-70" max="55" step="5" value="0"></label><label><input type="checkbox" id="show" checked> Toon vier CMYK-mieren</label><p id="progress">Druk op Start om te schilderen.</p><small>Lagen 1–3 blijven ongewijzigd. Maximaal drie dieren op de grond en twee vleermuizen; gegarandeerd zichtbare treurwilg en den vooraan.</small></aside><div id="scene"><div id="painting"><canvas id="c" width="1000" height="1000"></canvas><canvas id="shade" width="1000" height="1000"></canvas></div></div></section></main><script>
 const c=document.getElementById('c'),g=c.getContext('2d'),off=document.createElement('canvas');off.width=off.height=1000;const o=off.getContext('2d',{willReadFrequently:true});const W=1000,N=1000000;let data,done,ants,painted=0,running=false,scene=0,completed=false,phase=1,mountainData,mountainCanvas,mountainPixels=0,treeCanvas,treeData,treePixels=0,forestCanvas,forestData,forestPixels=0,animalCanvas,animalData,animalPixels=0;const R=(a,b)=>a+Math.random()*(b-a);
 function newSky(){signaturePoints=[];signatureIndex=0;phase=1;scene++;running=false;completed=false;painted=0;done=new Uint8Array(N);g.fillStyle='#0b1120';g.fillRect(0,0,W,W);let hue=R(212,260),horizon=R(550,790),moonX=R(120,880),moonY=R(105,355),moonR=R(31,62);
 let gr=o.createLinearGradient(0,0,0,W);gr.addColorStop(0,`hsl(${hue},${R(36,52)}%,${R(7,12)}%)`);gr.addColorStop(.5,`hsl(${hue-8},45%,${R(19,27)}%)`);gr.addColorStop(1,`hsl(${hue-24},${R(32,53)}%,${R(29,41)}%)`);o.fillStyle=gr;o.fillRect(0,0,W,W);
@@ -371,39 +371,84 @@ function createAnimals(){
   a.strokeStyle=color;a.lineWidth=w;a.lineCap='round';a.beginPath();a.moveTo(x1,y1);a.lineTo(x2,y2);a.stroke()
  }
  function shadow(x,y,rx){oval(x,y+2,rx,3,'rgba(4,14,16,.42)')}
- function land(type,x,foot,scale,dir){
+ function land(type,x,foot,scale,dir,pose=0){
+  // Twaalf afzonderlijke natuurgetrouwere zijaanzicht-modellen:
+  // 4 diersoorten x 3 houdingen. Alle vormen worden door mieren geschilderd.
   a.save();a.translate(x,foot);a.scale(scale*dir,scale);
-  let coat=type==='hert'?'#71695d':type==='vos'?'#a16c4c':type==='konijn'?'#9c9a8e':'#665d52';
-  let height=type==='hert'?48:type==='vos'?23:type==='konijn'?18:12;
-  shadow(0,0,type==='hert'?39:27);
-  // Vier poten, waarvan de uiteinden op y=0 staan.
-  if(type!=='egel'){
-   for(let lx of [-19,-11,13,21]){
-    let upper=type==='hert'?-30:-13;
-    line(lx,upper,lx+(lx>0?3:-2),-2,type==='hert'?3.5:3,coat);
-    oval(lx+(lx>0?3:-2),-1,4,2,'#302d2a');
-   }
-  }else for(let lx of [-16,12])line(lx,-6,lx,0,3,'#554b43');
-  oval(0,-height, type==='hert'?31:type==='vos'?27:type==='konijn'?19:23,
-       type==='hert'?17:type==='vos'?12:type==='konijn'?12:10,coat);
+  const palettes={hert:['#615b52','#817667','#aa9880'],vos:['#7e4b37','#a56c4a','#c1a28a'],konijn:['#69675e','#8b887a','#b7ad96'],egel:['#49453f','#6c6154','#a29780']};
+  const [dark,coat,light]=palettes[type];
+  const sit=pose===1,move=pose===2;
+  const stroke=(points,w,color)=>{a.strokeStyle=color;a.lineWidth=w;a.lineCap='round';a.lineJoin='round';a.beginPath();points.forEach(([xx,yy],i)=>i?a.lineTo(xx,yy):a.moveTo(xx,yy));a.stroke()};
+  const poly=(points,color)=>{a.fillStyle=color;a.beginPath();points.forEach(([xx,yy],i)=>i?a.lineTo(xx,yy):a.moveTo(xx,yy));a.closePath();a.fill()};
+  shadow(0,0,type==='hert'?41:30);
   if(type==='hert'){
-   line(19,-45,25,-76,8,coat);oval(28,-78,10,14,coat);
-   for(let sign of [-1,1]){
-    line(28+sign*3,-89,28+sign*12,-112,2.3,'#8c8270');
-    line(28+sign*9,-103,28+sign*18,-108,1.7,'#8c8270');
+   const by=sit?-32:-46;
+   // Slanke poten met hoeven; bij liggend hert zijn de poten ingetrokken.
+   if(sit){stroke([[-20,-26],[-25,-8],[-10,-3]],5,dark);stroke([[17,-26],[24,-8],[37,-3]],5,dark)}
+   else for(let [k,lx] of [-24,-12,17,27].entries()){
+    const knee=(move&&k%2===0)?lx+13:lx+(k%2?4:-5);
+    stroke([[lx,by+6],[knee,-21],[knee+(move&&k%2===0?11:2),-3]],k<2?4.5:5,coat);
+    poly([[knee-3,-4],[knee+7,-4],[knee+8,0],[knee-2,0]],'#302f2c');
    }
-   oval(35,-80,3,3,'#1a2426');
+   oval(0,by,34,18,coat,-.04);oval(-7,by-5,24,10,light,-.06);
+   // Borst en hals sluiten aan op kop, geen los rond hoofd.
+   poly([[16,by-7],[26,by-12],[37,by-44],[44,by-43],[34,by+8],[21,by+10]],coat);
+   oval(40,by-42,13,10,coat,-.12);
+   oval(49,by-38,9,5,light);oval(54,by-39,3,2,dark);
+   poly([[33,by-49],[28,by-63],[39,by-55]],coat);poly([[42,by-51],[48,by-65],[49,by-48]],coat);
+   oval(46,by-44,1.8,2,'#111919');
+   oval(-29,by-2,7,7,light);
+   if(pose!==1){ // Gewei bij twee van drie varianten; jonge hinde zonder gewei.
+    for(let side of [-1,1]){
+     const x0=38+side*4;stroke([[x0,by-51],[x0+side*4,by-72],[x0+side*11,by-88]],2.6,dark);
+     stroke([[x0+side*3,by-65],[x0+side*15,by-70]],1.7,dark);
+     stroke([[x0+side*8,by-78],[x0+side*19,by-80]],1.6,dark);
+    }
+   }
   }else if(type==='vos'){
-   oval(29,-27,13,9,coat);oval(38,-25,4,3,'#302922');
-   a.fillStyle='#c9b49a';a.beginPath();a.moveTo(27,-36);a.lineTo(30,-49);a.lineTo(37,-33);a.fill();
-   line(-24,-25,-52,-39,13,coat);oval(-52,-39,7,7,'#d6c9b6');
+   const by=sit?-22:-26;
+   if(sit){oval(-10,-16,17,20,coat,.22);stroke([[13,-18],[18,-3]],6,dark)}
+   else for(let [i,lx] of [-21,-12,15,23].entries()){
+    const dx=move?(i%2===0?12:-8):0;
+    stroke([[lx,by+4],[lx+dx,-2]],5,dark);
+   }
+   // Volle pluimstaart, puntige snuit, borst en witte keel.
+   poly([[-24,by-4],[-41,by-19],[-59,by-22],[-70,by-13],[-57,by-7],[-40,by+7]],coat);
+   poly([[-59,by-22],[-70,by-13],[-57,by-7],[-52,by-12]],light);
+   oval(0,by,29,13,coat,-.08);
+   poly([[13,by-7],[30,by-16],[42,by-13],[51,by-7],[43,by+2],[27,by+5]],coat);
+   poly([[26,by-11],[29,by-31],[37,by-17]],dark);
+   poly([[37,by-13],[43,by-31],[47,by-12]],dark);
+   poly([[29,by-1],[51,by-7],[45,by+4],[32,by+7]],light);
+   oval(50,by-7,2.4,2.2,'#181a19');oval(40,by-11,2,1.6,'#171a19');
+   poly([[12,by+3],[27,by+5],[23,by+12]],light);
   }else if(type==='konijn'){
-   oval(20,-23,10,9,coat);oval(22,-43,4,17,coat,-.15);oval(32,-42,4,17,coat,.1);
-   oval(27,-25,2,2,'#1e2222');oval(-19,-17,6,6,'#e4ddd0');
+   const by=sit?-18:-17;
+   // Gespierde achterhand en lange achtervoet, anatomisch aan het lijf vast.
+   oval(-7,by,21,16,coat,-.16);oval(-17,by+6,11,9,dark);
+   if(move){stroke([[-15,-8],[-25,-3],[-37,0]],5,coat);stroke([[8,-8],[24,-1]],4.5,coat)}
+   else {oval(-14,-3,17,5,coat);oval(13,-4,11,4,coat)}
+   oval(19,by-6,12,10,coat);
+   // Drie houdingen: oren rechtop, één gebogen, of beide naar achter.
+   if(pose===0){oval(14,by-29,4.5,19,coat,-.13);oval(24,by-29,4.5,18,coat,.17)}
+   else if(pose===1){oval(13,by-28,4.5,18,coat,-.15);oval(27,by-22,4.5,16,coat,.85)}
+   else {oval(11,by-24,4,19,coat,-.78);oval(22,by-24,4,19,coat,-.9)}
+   oval(28,by-4,5,4,light);oval(27,by-10,2,2,'#141a19');oval(33,by-3,1.7,1.5,dark);
+   oval(-28,by-1,6,7,light);
   }else{
-   for(let k=0;k<36;k++){let sx=R(-22,18),sy=R(-21,-9);line(sx,sy,sx+R(-6,6),sy-R(6,16),1.3,'#a59a82')}
-   oval(22,-9,9,5,'#7b7162');oval(29,-11,2,2,'#141b1a');
+   // Lage egel met dicht gelaagde stekels, smalle snuit en vier kleine pootjes.
+   for(let lx of [-19,-10,12,19])stroke([[lx,-10],[lx+(move?5:0),-1]],3.5,dark);
+   oval(-2,-15,26,14,dark);
+   for(let k=0;k<125;k++){
+    let t=R(.07,Math.PI-.07),rad=R(16,27);
+    const xx=-2+Math.cos(t)*rad,yy=-15-Math.sin(t)*R(13,22);
+    stroke([[xx,yy+8],[xx+Math.cos(t)*R(1,6),yy-R(5,12)]],R(.8,1.9),k%3?dark:light);
+   }
+   oval(20,-10,12,8,coat,-.12);oval(29,-8,8,4,light);
+   oval(36,-8,2.3,2,'#171918');oval(25,-13,1.7,1.7,'#151918');
+   oval(16,-17,3.3,4,coat);
   }
+  // Zachte schaduw en minieme vachtaccenten blijven binnen de nachtkleuren.
   a.restore();
  }
  function flying(type,x,y,scale,flip){
@@ -499,7 +544,7 @@ function createAnimals(){
    if(!best||overlap<best.overlap)best={x,foot,scale,overlap};
    if(overlap===0)break;
   }
-  if(best){land(type,best.x,best.foot,best.scale,Math.random()<.5?-1:1);placed.push(best.x)}
+  if(best){land(type,best.x,best.foot,best.scale,Math.random()<.5?-1:1,Math.floor(Math.random()*3));placed.push(best.x)}
  }
  // Exact een derde van de vliegende dieren zijn vleermuizen: 3 van 9.
  // Maximaal twee vliegende dieren in deze laag, allebei vleermuizen.
