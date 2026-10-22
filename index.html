@@ -1,0 +1,446 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nachtbos — Laag 5: dieren en natuurgetrouwere vleermuizen</title><style>body{margin:0;background:#101725;color:#e7eaf4;font:15px system-ui}main{max-width:1130px;margin:auto;padding:20px}h1{font-size:23px;font-weight:550}section{display:flex;gap:20px;flex-wrap:wrap}aside{background:#1a2739;border:1px solid #43546b;border-radius:12px;padding:16px;width:250px}canvas{width:min(100%,750px);height:auto;border:1px solid #52637b;display:block}button{border:1px solid #6f8cad;background:#345071;color:white;padding:11px 14px;border-radius:8px;cursor:pointer;margin:4px 2px}label{display:block;margin-top:17px}input[type=range]{width:100%}p,small{color:#bccbdc}#scene{flex:1;min-width:280px}</style></head><body><main><h1>🌙 Nachtbos — Laag 1 t/m 5: bos en dieren</h1><section><aside><button id="toggle">▶ Start</button><button id="again">↻ Nieuw beeld</button><button id="save">↓ PNG</button><label>Stappen per seconde: <span id="speedVal">20000</span><input id="speed" type="range" min="3000" max="50000" step="1000" value="20000"></label><label><input type="checkbox" id="show" checked> Toon vier CMYK-mieren</label><p id="progress">Druk op Start om te schilderen.</p><small>Lagen 1–3 blijven ongewijzigd. Maximaal drie dieren op de grond en twee vleermuizen; gegarandeerd zichtbare treurwilg en den vooraan.</small></aside><div id="scene"><canvas id="c" width="1000" height="1000"></canvas><p>Teekay & Omnia · 2026</p></div></section></main><script>
+const c=document.getElementById('c'),g=c.getContext('2d'),off=document.createElement('canvas');off.width=off.height=1000;const o=off.getContext('2d',{willReadFrequently:true});const W=1000,N=1000000;let data,done,ants,painted=0,running=false,scene=0,completed=false,phase=1,mountainData,mountainCanvas,mountainPixels=0,treeCanvas,treeData,treePixels=0,forestCanvas,forestData,forestPixels=0,animalCanvas,animalData,animalPixels=0;const R=(a,b)=>a+Math.random()*(b-a);
+function newSky(){phase=1;scene++;running=false;completed=false;painted=0;done=new Uint8Array(N);g.fillStyle='#0b1120';g.fillRect(0,0,W,W);let hue=R(212,260),horizon=R(550,790),moonX=R(120,880),moonY=R(105,355),moonR=R(31,62);
+let gr=o.createLinearGradient(0,0,0,W);gr.addColorStop(0,`hsl(${hue},${R(36,52)}%,${R(7,12)}%)`);gr.addColorStop(.5,`hsl(${hue-8},45%,${R(19,27)}%)`);gr.addColorStop(1,`hsl(${hue-24},${R(32,53)}%,${R(29,41)}%)`);o.fillStyle=gr;o.fillRect(0,0,W,W);
+let glow=o.createRadialGradient(moonX,moonY,moonR*.3,moonX,moonY,moonR*5.3);glow.addColorStop(0,'rgba(245,244,207,.42)');glow.addColorStop(.32,'rgba(211,222,229,.17)');glow.addColorStop(1,'rgba(211,222,229,0)');o.fillStyle=glow;o.fillRect(0,0,W,W);
+for(let i=0;i<430;i++){let x=R(0,W),y=R(0,760),r=R(.4,2);o.fillStyle=`rgba(234,242,255,${R(.35,.97)})`;o.beginPath();o.arc(x,y,r,0,7);o.fill()}
+o.fillStyle='#f0efd9';o.beginPath();o.arc(moonX,moonY,moonR,0,7);o.fill();for(let i=0;i<22;i++){let x=moonX+R(-moonR*.8,moonR*.8),y=moonY+R(-moonR*.8,moonR*.8);if((x-moonX)**2+(y-moonY)**2>moonR**2*.75)continue;o.fillStyle='rgba(133,142,147,.12)';o.beginPath();o.arc(x,y,R(1,5),0,7);o.fill()}
+data=o.getImageData(0,0,W,W).data;ants=['#00d9ee','#f94cc6','#f5db3c','#17191c'].map(color=>({x:R(0,W),y:R(0,W),a:R(0,7),color}));document.getElementById('progress').textContent=`Lucht ${scene} · 0%`;document.getElementById('toggle').textContent='▶ Start'}
+function createMountain(){
+ mountainCanvas=document.createElement('canvas');mountainCanvas.width=mountainCanvas.height=1000;
+ const m=mountainCanvas.getContext('2d',{willReadFrequently:true});m.clearRect(0,0,1000,1000);
+ const cx=R(385,615), summit=R(390,450), floor=summit+30, moonSide=Math.random()<.5?-1:1;
+ // Een grillige, brede rotsrug met verschillende uitstulpingen en asymmetrische flanken.
+ const ridge=[];for(let x=-100;x<=1100;x+=12){let d=Math.abs(x-cx),h=d<170?summit+R(-12,14):summit+Math.pow((d-170)/420,1.24)*420;h+=Math.sin(x*.024)*R(2,8)+Math.sin(x*.087)*R(2,6)+R(-10,10);ridge.push([x,h])}
+ const outline=[...ridge,[1100,1050],[-100,1050]];m.beginPath();m.moveTo(...outline[0]);for(let i=1;i<outline.length;i++)m.lineTo(...outline[i]);m.closePath();
+ let rock=m.createLinearGradient(cx-430,summit,cx+450,990);rock.addColorStop(0,'#6b7b7d');rock.addColorStop(.42,'#465b63');rock.addColorStop(1,'#243942');m.fillStyle=rock;m.fill();m.save();m.clip();
+ // Schuine breukvlakken: tientallen overlappende facetten in plaats van een egaal bergvlak.
+ for(let j=0;j<390;j++){let x=R(-70,1070),y=R(summit,1000),w=R(16,125),h=R(12,125);let lit=(moonSide*(x-cx)<0);m.fillStyle=lit?['rgba(160,178,177,.12)','rgba(188,195,182,.13)','rgba(34,49,58,.18)'][j%3]:['rgba(17,30,40,.25)','rgba(81,104,107,.13)','rgba(27,44,53,.20)'][j%3];m.beginPath();m.moveTo(x,y);m.lineTo(x+w,y-R(12,50));m.lineTo(x+w*R(.3,.7),y+h);m.closePath();m.fill()}
+ for(let j=0;j<2800;j++){let x=R(-60,1060),y=R(summit,1000),len=R(4,43);m.strokeStyle=['rgba(177,188,180,.19)','rgba(18,34,42,.31)','rgba(128,151,151,.17)'][j%3];m.lineWidth=R(.5,3);m.beginPath();m.moveTo(x,y);m.lineTo(x+len,y+R(-15,20));m.stroke()}
+ for(let j=0;j<150;j++){let x=R(-50,1050),y=R(summit+50,950);m.strokeStyle='rgba(12,26,34,.25)';m.lineWidth=R(1,4);m.beginPath();m.moveTo(x,y);m.bezierCurveTo(x+R(-20,20),y+R(12,34),x+R(-30,30),y+R(30,70),x+R(-35,35),y+R(55,125));m.stroke()}m.restore();
+ // De burcht staat ingebed in de rots; onregelmatige volumes en beschadigde daklijnen.
+ const left=cx-140,right=cx+153;
+ // Drie herkenbare, willekeurige kasteeltypes bij elk nieuw schilderij.
+ const castleType=Math.floor(Math.random()*3);
+ let walls,towers;
+ if(castleType===0){ // vertrouwde middeleeuwse burcht
+  walls=[{x:left,w:82,h:88},{x:left+64,w:76,h:115},{x:cx+15,w:94,h:98},{x:right-51,w:54,h:123}];
+  towers=[{x:left+19,w:37,h:153},{x:cx-22,w:43,h:187},{x:right-18,w:33,h:141}];
+ }else if(castleType===1){ // verweerde ruïne met gebroken muren
+  walls=[{x:left-12,w:83,h:64},{x:left+74,w:56,h:104},{x:cx+19,w:68,h:71},{x:right-37,w:40,h:91}];
+  towers=[{x:left+12,w:37,h:132},{x:right-12,w:32,h:112}];
+ }else{ // hoge donjon met lage ommuring
+  walls=[{x:left-5,w:102,h:65},{x:cx-43,w:94,h:102},{x:cx+48,w:109,h:70}];
+  towers=[{x:cx,w:59,h:218},{x:right-9,w:28,h:110}];
+ }
+ function stone(x,y,w,h,shade){
+  m.fillStyle=shade;m.beginPath();m.moveTo(x,y+R(0,5));
+  m.lineTo(x+w*.35,y-R(1,6));m.lineTo(x+w,y+R(0,6));
+  m.lineTo(x+w,floor);m.lineTo(x,floor);m.closePath();m.fill();
+  m.strokeStyle='rgba(22,38,45,.33)';m.lineWidth=1.3;m.stroke();
+ }
+ for(let q of walls)stone(q.x,floor-q.h,q.w,q.h,['#657679','#53666d','#607078','#4b5f68'][walls.indexOf(q)%4]);
+ for(let t of towers){
+  stone(t.x-t.w/2,floor-t.h,t.w,t.h,'#5c7077');
+  if(castleType!==1){ // ruïnetorens hebben geen intact dak
+   m.fillStyle='#384e57';m.beginPath();
+   m.moveTo(t.x-t.w*.7,floor-t.h+2);
+   m.lineTo(t.x-4,floor-t.h-R(10,20));
+   m.lineTo(t.x+t.w*.58,floor-t.h+R(0,5));m.closePath();m.fill();
+  }
+ }
+ if(castleType===1){
+  // Onregelmatige afgebroken muurkoppen en donkere openingen.
+  for(let q of walls){
+   for(let j=0;j<3;j++){
+    const bx=q.x+q.w*(j+.35)/3,by=floor-q.h+R(-3,7);
+    m.fillStyle='#263c45';m.fillRect(bx,by,R(5,11),R(5,12));
+   }
+  }
+  m.fillStyle='#1a303a';m.fillRect(cx+38,floor-44,15,44);
+ }
+ // Oude verweerde stenen en ontbrekende voegen, binnen de bestaande muren.
+ m.save();m.beginPath();for(let q of walls)m.rect(q.x,floor-q.h-4,q.w,q.h+4);for(let t of towers)m.rect(t.x-t.w/2,floor-t.h-5,t.w,t.h+5);m.clip();
+ for(let j=0;j<2100;j++){let x=R(left-10,right+10),y=R(floor-190,floor);m.strokeStyle=j%3?'rgba(28,44,50,.27)':'rgba(190,200,186,.26)';m.lineWidth=R(.5,1.7);m.beginPath();m.moveTo(x,y);m.lineTo(x+R(4,18),y+R(-2,2));m.stroke()}
+ for(let j=0;j<180;j++){let x=R(left,right),y=R(floor-150,floor);m.fillStyle='rgba(40,62,58,.20)';m.beginPath();m.ellipse(x,y,R(1,6),R(2,10),R(-1,1),0,7);m.fill()}m.restore();
+ // Voet van de burcht verdwijnt gedeeltelijk achter vooruitspringende steenrichels.
+ for(let j=0;j<35;j++){let x=R(left-30,right+30),y=R(floor-1,floor+38);m.fillStyle=j%2?'rgba(51,70,74,.8)':'rgba(75,92,93,.75)';m.beginPath();m.moveTo(x-R(16,35),y+R(7,20));m.lineTo(x,y-R(2,10));m.lineTo(x+R(13,39),y+R(5,17));m.closePath();m.fill()}
+
+ // Laag 2 v3: extra geologische structuur: schuin gelaagde rotsen met
+ // afwisselend belichte platen en diepe spleten, zonder grafische omtreklijnen.
+ m.save();m.beginPath();m.moveTo(...outline[0]);for(let i=1;i<outline.length;i++)m.lineTo(...outline[i]);m.closePath();m.clip();
+ for(let j=0;j<420;j++){
+  let x=R(-70,1070),y=R(floor+20,1000),length=R(14,110),rise=R(-32,18);
+  m.lineWidth=R(1,6);m.strokeStyle=j%4===0?'rgba(173,186,178,.19)':j%3===0?'rgba(20,34,42,.30)':'rgba(93,120,124,.18)';
+  m.beginPath();m.moveTo(x,y);m.bezierCurveTo(x+length*.3,y+rise*.4,x+length*.7,y+rise*.9,x+length,y+rise);m.stroke();
+ }
+ // Verweerde schaduwpartijen in scheuren en spleten
+ for(let j=0;j<90;j++){
+  let x=R(-60,1060),y=R(floor+35,960);
+  m.strokeStyle='rgba(9,24,34,.18)';m.lineWidth=R(2,8);m.beginPath();m.moveTo(x,y);m.lineTo(x+R(-18,18),y+R(25,90));m.stroke();
+ }
+ m.restore();
+ // Maanlicht langs uitstekende bergkammen, zonder zichtbare tekenfilmrand.
+ for(let j=0;j<150;j++){
+  let x=R(-70,1070),y=R(summit+30,930),edge=R(5,32);
+  if(Math.abs(x-cx)>510)continue;
+  m.strokeStyle='rgba(175,191,185,.09)';m.lineWidth=R(1,4);
+  m.beginPath();m.moveTo(x,y);m.lineTo(x+edge,y-R(2,12));m.stroke();
+ }
+ // Kleine, zichtbaar verlichte vensters: amberkleurig glas diep in stenen neggen.
+ // Geen grote halo, maar wél duidelijk waarneembaar licht.
+ const openings=[];
+ for(const q of walls){
+   let amount=q.w>75?2:1;
+   for(let j=0;j<amount;j++)openings.push({x:q.x+q.w*(j+1)/(amount+1)+R(-3,3),y:floor-q.h+R(30,Math.min(q.h-14,72)),w:R(5.5,7),h:R(11,15)});
+ }
+ for(const t of towers)openings.push({x:t.x+R(-2,2),y:floor-t.h+R(39,63),w:R(5,6.5),h:R(11,15)});
+ openings.forEach((q,i)=>{
+   let {x,y,w,h}=q,lit=i!==2&&i!==5;
+   // De donkere stenen dagkanten zijn niet geometrisch perfect.
+   m.fillStyle='#14252b';m.beginPath();m.moveTo(x-w*.65,y+h+1);
+   m.lineTo(x-w*.57,y+R(1,3));m.lineTo(x-w*.28,y-2);
+   m.lineTo(x+w*.40,y-1);m.lineTo(x+w*.60,y+h-1);m.closePath();m.fill();
+   if(lit){
+     // Binnenlicht is helder genoeg om van ver te zien, maar gloeit niet als vuur.
+     let inner=m.createLinearGradient(x,y,x,y+h);
+     inner.addColorStop(0,'#b49a6b');inner.addColorStop(.35,'#ffe1a1');inner.addColorStop(.8,'#e9b969');inner.addColorStop(1,'#9d794e');
+     m.fillStyle=inner;m.beginPath();m.moveTo(x-w*.38,y+h-1);m.lineTo(x-w*.35,y+2);
+     m.lineTo(x+w*.27,y+1);m.lineTo(x+w*.34,y+h-2);m.closePath();m.fill();
+     // Enkele pixels licht op de directe binnenrand, niet rondom de toren.
+     m.strokeStyle='rgba(222,188,125,.26)';m.lineWidth=1.5;
+     m.beginPath();m.moveTo(x-w*.55,y+3);m.lineTo(x-w*.55,y+h);m.stroke();
+   }
+ });
+ mountainData=m.getImageData(0,0,1000,1000).data;mountainPixels=0;for(let i=3;i<mountainData.length;i+=4)if(mountainData[i])mountainPixels++;
+}
+function beginMountain(){phase=2;painted=0;done=new Uint8Array(N);createMountain();ants.forEach(a=>{a.x=R(0,W);a.y=R(0,W)});running=true;document.getElementById('progress').textContent='Laag 2 · berg en kasteel · 0%'}
+
+// LAAG 3: apart transparant doek. De eerste twee schilderlagen blijven exact gelijk.
+function createBackTrees(){
+ treeCanvas=document.createElement('canvas');treeCanvas.width=treeCanvas.height=W;
+ const t=treeCanvas.getContext('2d',{willReadFrequently:true});
+ // Laag 3: duidelijk herkenbare, koele donkergroene silhouetten vóór de berg.
+ // De bomen zijn bewust veel donkerder dan het blauwgrijze gesteente.
+ const count=115,trees=[];
+ for(let i=0;i<count;i++){
+  let x=(i+.5)*W/count+R(-13,13);
+  let foot=R(735,820)+Math.sin(x*.007)*21+Math.sin(x*.018)*11;
+  let height=R(68,155),width=height*R(.25,.44);
+  trees.push({x,foot,height,width,kind:Math.random()});
+ }
+ trees.sort((a,b)=>a.foot-b.foot);
+ for(const q of trees){
+  let {x,foot,height:h,width:w,kind}=q;
+  t.save();t.globalAlpha=R(.91,1);
+  t.strokeStyle='#202e31';t.lineCap='round';t.lineWidth=R(2.2,4.3);
+  t.beginPath();t.moveTo(x,foot);t.quadraticCurveTo(x+R(-5,5),foot-h*.5,x+R(-3,3),foot-h);t.stroke();
+  if(kind<.70){
+   // Naaldbomen met afzonderlijke, dichtbegroeide takken.
+   for(let j=0;j<34;j++){
+    let f=(j+.5)/34,y=foot-h*(.10+f*.88),reach=w*(1-f*.84)*R(.76,1.12);
+    t.strokeStyle=['rgba(25,49,44,.98)','rgba(35,63,53,.97)','rgba(48,76,64,.94)'][j%3];
+    t.lineWidth=R(2.2,4.5)*(1-f*.45);
+    for(let side of [-1,1]){
+     t.beginPath();t.moveTo(x+R(-2,2),y-R(2,7));
+     t.quadraticCurveTo(x+side*reach*.48,y+R(-8,5),x+side*reach,y+R(0,12));t.stroke();
+     for(let k=0;k<4;k++){let bx=x+side*reach*R(.22,.95);t.beginPath();t.moveTo(bx,y+R(-5,6));t.lineTo(bx+side*R(3,8),y-R(4,11));t.stroke()}
+    }
+   }
+  }else{
+   // Bladkruinen vormen echte donkere massa's, geen bleke stippen.
+   for(let j=0;j<65;j++){
+    let yy=foot-h*R(.45,.95),xx=x+R(-w,w),r=R(3.5,10);
+    t.fillStyle=['rgba(27,53,47,.88)','rgba(37,67,56,.88)','rgba(52,82,68,.83)'][j%3];
+    t.beginPath();t.ellipse(xx,yy,r*R(.7,1.3),r,0,0,Math.PI*2);t.fill();
+   }
+  }
+  t.restore();
+ }
+ treeData=t.getImageData(0,0,W,W).data;treePixels=0;
+ for(let i=3;i<treeData.length;i+=4)if(treeData[i])treePixels++;
+}
+function beginTrees(){phase=3;painted=0;done=new Uint8Array(N);createBackTrees();ants.forEach(a=>{a.x=R(0,W);a.y=R(0,W)});running=true;document.getElementById('progress').textContent='Laag 3 · achterste bomenrij · 0%'}
+
+const I=(a,b)=>Math.floor(R(a,b));
+function createForest(){
+ forestCanvas=document.createElement('canvas');forestCanvas.width=forestCanvas.height=W;
+ const f=forestCanvas.getContext('2d',{willReadFrequently:true});
+ // Laag 4 v4: 2 rijen, natuurlijke boomarchitectuur en duidelijk verschillende soorten.
+ // Elke boom krijgt een unieke stam, kroon, takstand, leeftijd en open plekken.
+ // Kansverdeling per nieuw bos, onafhankelijk voor elke boom.
+ // Grove den 16%, spar 16%, eik 18%, berk 18%, treurwilg 16%, beuk 16%.
+ const species=[['grove den',16],['spar',16],['eik',18],['berk',18],['treurwilg',16],['beuk',16]];
+ function randomSpecies(){let n=Math.random()*100;for(const [name,chance] of species){n-=chance;if(n<0)return name}return 'beuk'}
+ const items=[];
+ for(let row=0;row<2;row++){
+  const amount=row===0?22:16;
+  for(let i=0;i<amount;i++){
+   // Voorste rij: minstens één herkenbare grove den en treurwilg.
+   // Overige bomen behouden hun willekeurige kansverdeling.
+   let type=row===1&&i===4?'grove den':row===1&&i===11?'treurwilg':randomSpecies();
+   let x=(i+.5)*W/amount+R(-22,22),foot=row===0?R(832,883):R(942,1008);
+   let h=(row===0?R(130,225):R(205,355))*R(.85,1.14);
+   if(row===1&&(i===4||i===11)){x=(i===4?270:760)+R(-8,8);foot=R(972,990);h=i===11?R(365,410):R(285,335)}
+   items.push({x,foot,h,type,row,lean:R(-.12,.12),age:R(.7,1.25),guaranteed:row===1&&i===11});
+  }
+ }
+ items.sort((a,b)=>a.foot-b.foot);
+ // De vaste voorgrondwilg wordt ALS LAATSTE getekend, zodat andere kruinen hem niet bedekken.
+ const guaranteedWillow=items.find(q=>q.row===1&&q.type==='treurwilg'&&q.guaranteed);
+ if(guaranteedWillow){items.splice(items.indexOf(guaranteedWillow),1);items.push(guaranteedWillow)}
+ function line(x1,y1,x2,y2,w,color){f.strokeStyle=color;f.lineWidth=w;f.beginPath();f.moveTo(x1,y1);f.lineTo(x2,y2);f.stroke()}
+ function leaf(x,y,rx,ry,color){f.fillStyle=color;f.beginPath();f.ellipse(x,y,rx,ry,R(-1.2,1.2),0,Math.PI*2);f.fill()}
+ function crownCluster(x,y,rx,ry,colors,n){
+  for(let k=0;k<n;k++){let angle=R(0,Math.PI*2),rad=Math.sqrt(Math.random());let xx=x+Math.cos(angle)*rx*rad,yy=y+Math.sin(angle)*ry*rad;
+   leaf(xx,yy,R(2,7),R(2,6),colors[k%colors.length]);}
+ }
+ for(const q of items){
+  let {x,foot,h,type,row,lean,age}=q;
+  let topX=x+lean*h, topY=foot-h;
+  let trunk=row===0?'#34423c':'#2b332f';
+  let colors=row===0?['#294d40','#375b49','#476a53','#526e59']:['#1e3d31','#2c4b38','#375541','#42624b'];
+  let sw=h*R(.035,.058);
+  f.save();f.lineCap='round';f.lineJoin='round';
+  // Stammen taps en onregelmatig, met individuele zijtakken.
+  // Een treurwilg heeft zijn kruin lager: de stam mag er niet als een
+  // kale paal bovenuit steken. Laat hem midden IN de kruin eindigen.
+  if(type==='treurwilg'){
+   const crownCenter=foot-h*.72;
+   line(x,foot,x+lean*h*.66,crownCenter+h*.035,sw,trunk);
+  }else{
+   line(x,foot,topX,topY+h*.055,sw,trunk);
+  }
+  for(let t=0;t<18;t++){
+   let fy=foot-h*R(.1,type==='treurwilg'?.69:.92),fx=x+(topX-x)*(foot-fy)/h;
+   line(fx+R(-sw*.4,sw*.4),fy,fx+R(-sw*.4,sw*.4),fy-R(5,25),R(.5,1.5),t%2?'rgba(141,156,136,.23)':'rgba(8,18,16,.32)');
+  }
+  if(type==='grove den'){
+   // Grove den: lange kale stam, grillige brede kroon met losse naaldpluimen.
+   let branches=I(13,22);
+   for(let j=0;j<branches;j++){
+    let t=R(.50,.97),y=foot-h*t,bx=x+lean*h*t,side=Math.random()<.5?-1:1;
+    let length=h*R(.16,.33)*(1-(t-.5)*.7),ex=bx+side*length,ey=y-R(4,26);
+    line(bx,y,ex,ey,R(1.7,4),trunk);
+    crownCluster(ex,ey,h*R(.035,.075),h*R(.022,.045),colors,I(18,35));
+   }
+  }else if(type==='spar'){
+   // Spar: diep afhangende takken, smal en hoog, maar geen perfecte driehoek.
+   for(let j=0;j<34;j++){
+    let t=(j+.6)/35,y=foot-h*(.14+t*.84),bx=x+lean*h*(.14+t*.84),spread=h*(.24-.18*t)*R(.7,1.25);
+    for(let side of [-1,1]){
+     let ex=bx+side*spread,ey=y+R(7,28);
+     line(bx,y,ex,ey,R(1.2,3.4),trunk);
+     for(let k=0;k<11;k++){
+      let u=R(.2,1),xx=bx+(ex-bx)*u,yy=y+(ey-y)*u;
+      line(xx,yy,xx+side*R(2,9),yy-R(3,12),R(1.1,2.8),colors[(j+k)%4]);
+     }
+    }
+   }
+  }else if(type==='treurwilg'){
+   // Ondubbelzinnig treurwilgsilhouet: brede koepel en lange hangende gordijnen.
+   // De gegarandeerde wilg heeft een vaste zichtbare plek op de voorgrond.
+   const fixed=q.guaranteed;
+   const crownY=foot-h*.72, rx=h*(fixed?.39:.31);
+   const willowColors=['#203b30','#294737','#34523e','#1b322b'];
+   // De takken waaieren vanuit de stam naar buiten.
+   for(let j=0;j<32;j++){
+    const u=j/31*2-1;
+    const endX=x+u*rx, endY=crownY+Math.abs(u)*h*.10;
+    line(x+lean*h*.66,crownY+20,endX,endY,R(2,4),trunk);
+   }
+   // Donkere nachtkroon met onregelmatige rand.
+   for(let j=0;j<(fixed?350:170);j++){
+    let xx=x+R(-rx,rx), t=(xx-x)/rx;
+    let yy=crownY-h*.055+R(-h*.055,h*.07);
+    if(Math.abs(t)>.75)yy+=h*.055;
+    leaf(xx,yy,R(4,11),R(3,8),willowColors[j%4]);
+   }
+   // Karakteristieke slierten vallen tot ver beneden de kruin.
+   for(let j=0;j<(fixed?190:105);j++){
+    let u=R(-1,1),sx=x+u*rx;
+    let sy=crownY+R(-h*.02,h*.08);
+    let drop=h*R(.31,.60)*(1-.22*Math.abs(u));
+    let ex=sx+R(-12,12);
+    f.strokeStyle=willowColors[j%4];f.lineWidth=R(1.4,3.2);
+    f.beginPath();f.moveTo(sx,sy);
+    f.bezierCurveTo(sx+R(-16,16),sy+drop*.36,ex+R(-7,7),sy+drop*.75,ex,sy+drop);
+    f.stroke();
+    for(let k=1;k<=7;k++){
+     let t=k/8,px=sx+(ex-sx)*t;
+     leaf(px+R(-4,4),sy+drop*t,R(2,4.5),R(5,10),willowColors[(j+k)%4]);
+    }
+   }
+  }else{
+   // Eik: zware horizontale armen; beuk: hoge koepel; berk: lichte stam en open kruin.
+   let birch=type==='berk',oak=type==='eik';
+   if(birch){line(x,foot,topX,topY,h*.022,'#a8aca0');for(let z=0;z<12;z++){let yy=foot-R(.15,.95)*h;line(x+lean*(foot-yy)-4,yy,x+lean*(foot-yy)+3,yy-2,1.5,'#333d39')}}
+   let branches=oak?11:birch?18:14;
+   let spread=h*(oak?.38:birch?.22:.31);
+   for(let j=0;j<branches;j++){
+    let t=R(.40,.93),sy=foot-h*t,sx=x+lean*h*t,side=j%2?-1:1;
+    let ex=sx+side*spread*R(.3,1),ey=sy-h*R(.05,.2);
+    line(sx,sy,ex,ey,R(1.5,oak?6:4),birch?'#a0a69a':trunk);
+    let cr=oak?h*.105:birch?h*.065:h*.09;
+    crownCluster(ex,ey,cr*R(.75,1.4),cr*R(.55,1),colors,birch?I(9,20):I(35,65));
+   }
+  }
+  // Geen afgekapte 'totempalen': de stamtop verdwijnt in een natuurlijke,
+  // donkere kruin of naaldpluim. De hangende wilg blijft onaangeroerd.
+  if(type!=='treurwilg'){
+   const tipColors=type==='spar'?['#172f28','#234034','#2b4738']:colors;
+   const rx=type==='grove den'?h*.105:type==='spar'?h*.043:h*.12;
+   const ry=type==='grove den'?h*.075:type==='spar'?h*.11:h*.10;
+   crownCluster(topX,topY+h*.018,rx,ry,tipColors,type==='spar'?115:185);
+   // Extra blad- of naaldmassa rond de hoogste takken, geen zichtbare stomp.
+   if(type==='grove den'||type==='eik'||type==='beuk'||type==='berk'){
+    crownCluster(topX-h*.055,topY+h*.075,rx*.83,ry*.83,tipColors,90);
+    crownCluster(topX+h*.060,topY+h*.065,rx*.82,ry*.8,tipColors,90);
+   }
+  }
+  f.restore();
+ }
+ forestData=f.getImageData(0,0,W,W).data;forestPixels=0;
+ for(let i=3;i<forestData.length;i+=4)if(forestData[i])forestPixels++;
+}
+function beginForest(){phase=4;painted=0;done=new Uint8Array(N);createForest();ants.forEach(a=>{a.x=R(0,W);a.y=R(0,W)});running=true;document.getElementById('progress').textContent='Laag 4 · twee gevarieerde bomenrijen · 0%'}
+
+// LAAG 5: onafhankelijke transparante laag. Voeten van landdieren raken
+// uitsluitend de bosbodem (y=900..981); vogels vliegen op y=100..500.
+function createAnimals(){
+ animalCanvas=document.createElement('canvas');animalCanvas.width=animalCanvas.height=W;
+ const a=animalCanvas.getContext('2d',{willReadFrequently:true});
+ const P=(color)=>{a.fillStyle=color;a.strokeStyle=color};
+ function oval(x,y,rx,ry,color,angle=0){
+  a.fillStyle=color;a.beginPath();a.ellipse(x,y,rx,ry,angle,0,Math.PI*2);a.fill()
+ }
+ function line(x1,y1,x2,y2,w,color){
+  a.strokeStyle=color;a.lineWidth=w;a.lineCap='round';a.beginPath();a.moveTo(x1,y1);a.lineTo(x2,y2);a.stroke()
+ }
+ function shadow(x,y,rx){oval(x,y+2,rx,3,'rgba(4,14,16,.42)')}
+ function land(type,x,foot,scale,dir){
+  a.save();a.translate(x,foot);a.scale(scale*dir,scale);
+  let coat=type==='hert'?'#71695d':type==='vos'?'#a16c4c':type==='konijn'?'#9c9a8e':'#665d52';
+  let height=type==='hert'?48:type==='vos'?23:type==='konijn'?18:12;
+  shadow(0,0,type==='hert'?39:27);
+  // Vier poten, waarvan de uiteinden op y=0 staan.
+  if(type!=='egel'){
+   for(let lx of [-19,-11,13,21]){
+    let upper=type==='hert'?-30:-13;
+    line(lx,upper,lx+(lx>0?3:-2),-2,type==='hert'?3.5:3,coat);
+    oval(lx+(lx>0?3:-2),-1,4,2,'#302d2a');
+   }
+  }else for(let lx of [-16,12])line(lx,-6,lx,0,3,'#554b43');
+  oval(0,-height, type==='hert'?31:type==='vos'?27:type==='konijn'?19:23,
+       type==='hert'?17:type==='vos'?12:type==='konijn'?12:10,coat);
+  if(type==='hert'){
+   line(19,-45,25,-76,8,coat);oval(28,-78,10,14,coat);
+   for(let sign of [-1,1]){
+    line(28+sign*3,-89,28+sign*12,-112,2.3,'#8c8270');
+    line(28+sign*9,-103,28+sign*18,-108,1.7,'#8c8270');
+   }
+   oval(35,-80,3,3,'#1a2426');
+  }else if(type==='vos'){
+   oval(29,-27,13,9,coat);oval(38,-25,4,3,'#302922');
+   a.fillStyle='#c9b49a';a.beginPath();a.moveTo(27,-36);a.lineTo(30,-49);a.lineTo(37,-33);a.fill();
+   line(-24,-25,-52,-39,13,coat);oval(-52,-39,7,7,'#d6c9b6');
+  }else if(type==='konijn'){
+   oval(20,-23,10,9,coat);oval(22,-43,4,17,coat,-.15);oval(32,-42,4,17,coat,.1);
+   oval(27,-25,2,2,'#1e2222');oval(-19,-17,6,6,'#e4ddd0');
+  }else{
+   for(let k=0;k<36;k++){let sx=R(-22,18),sy=R(-21,-9);line(sx,sy,sx+R(-6,6),sy-R(6,16),1.3,'#a59a82')}
+   oval(22,-9,9,5,'#7b7162');oval(29,-11,2,2,'#141b1a');
+  }
+  a.restore();
+ }
+ function flying(type,x,y,scale,flip){
+  a.save();a.translate(x,y);a.scale(scale*flip,scale);
+  if(type==='vleermuis'){
+   // Frontaal herkenbaar vleermuissilhouet: de handvleugels bestaan uit
+   // één doorlopend huidvlak met vier uitgesproken U-vormige uitsneden.
+   // Vleugeltoppen wijzen omhoog, de vrije achterrand hangt in boogjes.
+   const membrane='#192329',rim='#35444b',fur='#24292a';
+   const wingTilt=R(-.08,.10);
+   for(const side of [-1,1]){
+    a.save();a.scale(side,1);a.rotate(wingTilt);
+    a.fillStyle=membrane;
+    a.beginPath();
+    a.moveTo(3,-6);                   // schouder
+    a.quadraticCurveTo(19,-21,33,-27);// onderarm
+    a.quadraticCurveTo(49,-37,74,-44);// langste vinger: scherpe vleugeltop
+    a.quadraticCurveTo(66,-22,59,-9); // eerste diepe inkeping
+    a.quadraticCurveTo(55,-23,50,-25);// tweede vingerpunt
+    a.quadraticCurveTo(46,-5,40,3);   // tweede inkeping
+    a.quadraticCurveTo(37,-13,32,-14);// derde vingerpunt
+    a.quadraticCurveTo(29,6,23,12);  // derde inkeping
+    a.quadraticCurveTo(20,-4,17,-5); // vierde vingerpunt
+    a.quadraticCurveTo(15,12,8,17);  // vleugelhuid aan achterpoot
+    a.lineTo(3,10);a.closePath();a.fill();
+    // Fijne botlijnen liggen binnen het vleugelmembraan.
+    a.strokeStyle=rim;a.lineWidth=.95;a.lineCap='round';
+    a.beginPath();a.moveTo(5,-6);a.lineTo(33,-27);a.lineTo(74,-44);a.stroke();
+    for(const [px,py] of [[50,-25],[32,-14],[17,-5]]){
+     a.beginPath();a.moveTo(33,-27);a.lineTo(px,py);a.stroke();
+    }
+    a.restore();
+   }
+   // Klein lijf met naar beneden hangende achterpoten en staartvlies.
+   oval(0,0,6.3,13,fur);
+   a.fillStyle=membrane;a.beginPath();a.moveTo(-5,9);
+   a.quadraticCurveTo(0,24,5,9);a.lineTo(0,18);a.closePath();a.fill();
+   a.strokeStyle='#343c3c';a.lineWidth=1.8;a.beginPath();
+   a.moveTo(-4,11);a.lineTo(-8,19);a.moveTo(4,11);a.lineTo(8,19);a.stroke();
+   // Vleermuiskop met twee puntige oren (geen vogelbek).
+   oval(0,-13,7.5,7.2,fur);
+   a.fillStyle=fur;
+   for(const side of [-1,1]){
+    a.beginPath();a.moveTo(side*2,-16);a.lineTo(side*6,-29);
+    a.quadraticCurveTo(side*13,-26,side*9,-15);a.closePath();a.fill();
+    a.strokeStyle='#6d6761';a.lineWidth=.9;a.beginPath();
+    a.moveTo(side*6,-18);a.lineTo(side*7,-25);a.stroke();
+   }
+   oval(-3,-14,1,1,'#7f7a70');oval(3,-14,1,1,'#7f7a70');
+   a.restore();return;
+  }
+  let c=type==='uil'?'#8a8273':type==='raaf'?'#202d36':'#647a83';
+  // Niet op de grond: vleugels in de lucht en duidelijk afzonderlijk van de bomen.
+  oval(0,0,type==='uil'?13:11,8,c);
+  if(type==='uil'){oval(7,-8,9,11,c);oval(11,-11,2,2,'#f1d49a')}
+  let spread=type==='uil'?43:52;
+  a.fillStyle=c;
+  a.beginPath();a.moveTo(-6,-2);a.quadraticCurveTo(-spread*.55,-27,-spread,-10);
+  a.quadraticCurveTo(-spread*.64,-1,-5,6);a.fill();
+  a.beginPath();a.moveTo(4,-2);a.quadraticCurveTo(spread*.5,-25,spread,-9);
+  a.quadraticCurveTo(spread*.68,2,5,6);a.fill();
+  for(let side of [-1,1])for(let j=0;j<5;j++)
+   line(side*(18+j*5),-11+j*.5,side*(24+j*6),-3+j*2,1.1,c);
+  a.restore();
+ }
+ // Dieren krijgen elk hun eigen grondhoogte en perspectiefschaal.
+ let landTypes=['hert','vos','konijn','egel'];
+ for(let i=0;i<3;i++){
+  let foot=R(908,979),scale=(foot-780)/200*R(.65,1.12);
+  land(landTypes[i%4],R(65,935),foot,scale,Math.random()<.5?-1:1);
+ }
+ // Exact een derde van de vliegende dieren zijn vleermuizen: 3 van 9.
+ // Maximaal twee vliegende dieren in deze laag, allebei vleermuizen.
+ // Zo kunnen geen andere vogelsilhouetten voor extra vleermuizen worden aangezien.
+ for(let i=0;i<2;i++)flying('vleermuis',R(180,820),R(110,430),R(.32,.48),Math.random()<.5?-1:1);
+ animalData=a.getImageData(0,0,W,W).data;animalPixels=0;
+ for(let i=3;i<animalData.length;i+=4)if(animalData[i])animalPixels++;
+}
+function beginAnimals(){
+ phase=5;painted=0;done=new Uint8Array(N);createAnimals();
+ ants.forEach(q=>{q.x=R(0,W);q.y=R(0,W)});
+ running=true;
+ document.getElementById('progress').textContent='Laag 5 · landdieren en vliegende vogels · 0%';
+}
+function step(){if(running&&!completed){let n=Math.floor(+document.getElementById('speed').value/60),src=phase===1?data:phase===2?mountainData:phase===3?treeData:phase===4?forestData:animalData;
+ for(let i=0;i<n;i++){let a=ants[i%4];a.a+=R(-1.1,1.1);a.x=(a.x+Math.cos(a.a)*R(4,18)+W)%W;a.y=(a.y+Math.sin(a.a)*R(4,18)+W)%W;let x=a.x|0,y=a.y|0,r=R(6,14)|0;
+ for(let dy=-r;dy<=r;dy+=2)for(let dx=-r;dx<=r;dx+=2){if(dx*dx+dy*dy>r*r)continue;let xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=W||yy>=W)continue;let ix=yy*W+xx,p=ix*4;if(phase!==1&&src[p+3]===0)continue;if(!done[ix]){done[ix]=1;painted++}g.fillStyle=phase===1?`rgb(${src[p]},${src[p+1]},${src[p+2]})`:`rgba(${src[p]},${src[p+1]},${src[p+2]},${src[p+3]/255})`;g.fillRect(xx,yy,3,3)}}
+ let total=phase===1?N:phase===2?mountainPixels:phase===3?treePixels:phase===4?forestPixels:animalPixels;
+ if(painted>total*.78){if(phase===1){g.drawImage(off,0,0);beginMountain()}else if(phase===2){g.drawImage(mountainCanvas,0,0);beginTrees()}else if(phase===3){g.drawImage(treeCanvas,0,0);beginForest()}else if(phase===4){g.drawImage(forestCanvas,0,0);beginAnimals()}else{g.drawImage(animalCanvas,0,0);running=false;completed=true;painted=total}}
+ document.getElementById('progress').textContent=`Laag ${phase} · ${phase===1?'maan en lucht':phase===2?'berg en kasteel':phase===3?'achterste bomenrij':phase===4?'twee gevarieerde bomenrijen':'dieren op grond en in lucht'} · ${Math.min(100,Math.floor(painted/total*100))}%`;
+ document.getElementById('toggle').textContent=running?'Ⅱ Pauze':completed?'✓ Voltooid':'▶ Verder'}requestAnimationFrame(step)}
+document.getElementById('toggle').onclick=()=>{if(completed)return;running=!running;document.getElementById('toggle').textContent=running?'Ⅱ Pauze':'▶ Verder'};document.getElementById('again').onclick=()=>{newSky();running=true;document.getElementById('toggle').textContent='Ⅱ Pauze'};document.getElementById('save').onclick=()=>{let a=document.createElement('a');a.download='nachtbos-laag1-2-3-4-5-'+scene+'.png';a.href=c.toDataURL();a.click()};document.getElementById('speed').oninput=e=>document.getElementById('speedVal').textContent=e.target.value;newSky();requestAnimationFrame(step);
+</script></body></html>
